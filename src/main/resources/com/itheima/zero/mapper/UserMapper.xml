@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    规范1：namespace和mapper接口全限定类名一致
+-->
+<mapper namespace="com.itheima.zero.mapper.UserMapper">
+    <select id="queryUserByWhere" parameterType="user" resultType="user">
+        SELECT
+        <include refid="SqlCommonID"/>
+        FROM user
+        <where>
+            <if test="sex != null and sex !=''">
+                AND sex=#{sex}
+            </if>
+            <if test="username != null and username != ''">
+                AND username like #{username}
+            </if>
+        </where>
+    </select>
+    <sql id="SqlCommonID">
+        id,username,sex,birthday,address
+    </sql>
+
+    <select id="queryUserByForeach" parameterType="list" resultType="user">
+        SELECT
+        <include refid="SqlCommonID"/>
+        FROM USER WHERE id in
+        <foreach collection="list" separator="," item="item" open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <select id="queryUserByArray" parameterType="int[]" resultType="user">
+        SELECT
+        <include refid="SqlCommonID"/>
+        FROM USER WHERE id in
+        <foreach collection="array" separator="," item="item" open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <select id="queryUserByPojo" parameterType="QueryVo" resultType="user">
+        SELECT
+        <include refid="SqlCommonID"/>
+        <foreach collection="idsArray" separator="," item="item" close=")" open="from user where id in (">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <select id="queryUserByOrdersUID" resultMap="UserByOrders">
+       SELECT
+           u.id,
+           u.username,
+           u.sex,
+           u.birthday,
+           u.address,
+           o.id,
+           o.user_id,
+           o.createtime
+FROM USER u
+  LEFT JOIN orders o
+    ON o.user_id = u.id
+
+    </select>
+    <resultMap id="UserByOrders" type="user">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="sex" property="sex"/>
+        <result column="birthday" property="birthday"/>
+        <result column="address" property="address"/>
+
+        <collection property="ordersList" ofType="Orders">
+            <id column="id" property="id"/>
+            <result column="user_id" property="userId"/>
+            <result column="createtime" property="createtime"/>
+
+        </collection>
+
+    </resultMap>
+
+
+
+    <select id="QueryUserFromRole" resultMap="UserToRole">
+        SELECT
+              u.id,
+              u.username,
+              u.sex,
+              u.birthday,
+              u.address,
+              r.RID,
+              r.rname
+            FROM USER u
+              LEFT JOIN user_role ur
+                ON u.id = ur.UID
+              LEFT JOIN role r
+                ON ur.RID = r.RID;
+    </select>
+    <resultMap id="UserToRole" type="user">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="sex" property="sex"/>
+        <result column="birthday" property="birthday"/>
+        <result column="address" property="address"/>
+        <collection property="roleList" ofType="Role">
+            <id column="RID" property="rid"/>
+        <result column="rname" property="rname"/>
+        </collection>
+    </resultMap>
+
+</mapper>

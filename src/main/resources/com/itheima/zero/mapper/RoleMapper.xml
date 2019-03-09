@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.zero.mapper.RoleMapper">
+    <select id="queryRoleWithUser" resultMap="RoleWithUser">
+        SELECT
+              r.RID,
+              r.RNAME,
+              u.username,
+              u.id,
+              u.sex,
+              u.birthday,
+              u.address
+            FROM role r
+              LEFT JOIN user_role ur
+                ON r.RID = ur.RID
+              LEFT JOIN USER u
+                ON ur.UID = u.id
+    </select>
+    <resultMap id="RoleWithUser" type="role">
+        <id column="RID" property="rid"/>
+        <result column="RNAME" property="rname" />
+        <collection property="userList" ofType="user">
+            <result column="birthday" property="birthday"/>
+            <result column="username" property="username"/>
+            <result column="address" property="address"/>
+            <result column="sex" property="sex"/>
+        </collection>
+    </resultMap>
+
+
+</mapper>
